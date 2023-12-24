@@ -1,10 +1,8 @@
 import mongoose from "mongoose";
-import { User } from "../models/user";
 import { Product } from "../models/product";
-import { Order } from "../models/order";
 
 module.exports = {
-  getProduct: async (res, req) => {
+  getProduct: async (req, res) => {
     try {
       let productId = req.params.productId;
       if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -19,9 +17,9 @@ module.exports = {
       return res.status(500).json({ error: error.message });
     }
   },
-  getProducts: async (res, req) => {
+  getProducts: async (req, res) => {
     try {
-      let products = await Product.find({});
+      let products = await Product.find();
       if (products.length == 0) {
         return res.status(404).json({ message: "No products found" });
       }
@@ -30,7 +28,7 @@ module.exports = {
       return res.status(500).json({ error: error.message });
     }
   },
-  search: async (res, req) => {
+  search: async (req, res) => {
     try {
       let { name, category, maxPrice, minPrice } = req.query;
       let filters = {};
