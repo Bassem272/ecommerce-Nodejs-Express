@@ -11,6 +11,7 @@ const userSchema = new Schema({
     cartItems:[{ type: Schema.Types.ObjectId, ref: "product" }],
     code:{ type: String},
     isVerified:{ type: Boolean, default: false },
+    token:{type:string},
 });
 
 module.exports = mongoose.model("user", userSchema);

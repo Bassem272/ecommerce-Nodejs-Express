@@ -28,16 +28,16 @@ module.exports = {
       return res.status(500).json({ error: error.message });
     }
   },
-  search: async (req, res) => {
+  searchProducts: async (req, res) => {
     try {
       let { name, category, maxPrice, minPrice } = req.query;
       let filters = {};
       if (name) filters.name = { $regex: name, $options: "i" };
       if (category) filters.category = { $regex: category, $options: "i" };
       if (maxPrice && minPrice) {
-        filters.price = { $gte: minPrice, $lte: maxPrice };
-      } else if (maxPrice) filters.price = { $lte: maxPrice };
-      else if (minPrice) filters.price = { $gte: minPrice };
+        filters.price = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
+      } else if (maxPrice) filters.price = { $lte: parseFloat(maxPrice) };
+      else if (minPrice) filters.price = { $gte: parseFloat(minPrice) };
       let products = await Product.find(filters);
       if (products.length == 0) {
         return res.status(404).json({ message: "No products found" });

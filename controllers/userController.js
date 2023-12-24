@@ -1,4 +1,5 @@
 import jsonToken from "jsonwebtoken";
+
 import bcrypt from "bcrypt";
 import nanoid from "nanoid";
 import dotenv from "dotenv";
@@ -23,12 +24,12 @@ module.exports = {
         });
       }
       const code = nanoid(6);
-      const hashedPassword = await bcrypt.hash(user.password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
       const user = new User({
         email,
         password: hashedPassword,
         name,
-        code,
+        code:code,
         isVerified: false,
       });
 
@@ -80,6 +81,7 @@ module.exports = {
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
       );
+      user.token = token; 
       return res
         .status(200)
         .json({ token, userId: user._id, message: "login Successful" });
@@ -90,18 +92,14 @@ module.exports = {
   logOut: async (req, res) => {
     try {
       // we are using jsonwebtoken
-      const { userId, token } = req.body;
-
+      const { userId} = req.body;
       const user = await User.findById(userId);
       if (!user) {
         return res.status(400).json({ message: "Invalid userId" });
       }
-      user.token = jwt.sign(
-        { userId: process.env.JWT_SECRET },
-        process.env.JWT_SECRET,
-        { expiresIn: "2s" }
-      );
-      res.status(200).json({ message: "Logout successful", token });
+      user.token = null; 
+      await user.save();
+      res.status(200).json({ message: "Logout successful" });
     } catch (error) {
       return res.status(500).json({ error: "Internal server error" });
     }
@@ -146,7 +144,7 @@ module.exports = {
       return res.status(500).json({ error: error.message });
     }
   },
-  setAndUpdateAddress: async (req, res) => {
+  updateAddress: async (req, res) => {
     try {
       const address = req.body.address;
       const { userId } = req.params;
